@@ -17,18 +17,17 @@ import java.util.*;
 
 public class Exam implements Examination{
     public static final int INITIAL_CAPACITY = 128;
-    private final Map<String, Score> scores = new HashMap<>(INITIAL_CAPACITY);
+    private final Map<String, Score> scores = new LinkedHashMap<>(INITIAL_CAPACITY);
     private final Set<String> multipleSubmissionsStudentNames = new HashSet<>();
 
     @Override
     public void addScore(Score score) {
-        if (!scores.containsKey(score.name())) {
-            scores.put(score.name(), score);
-        }
-        else {
-            scores.replace(score.name(), score);
-            multipleSubmissionsStudentNames.add(score.name());
-        }
+        scores.compute(score.name(), (key, existingScore) -> {
+            if (existingScore != null) {
+                multipleSubmissionsStudentNames.add(key);
+            }
+            return score;
+        });
 
     }
 
@@ -42,6 +41,7 @@ public class Exam implements Examination{
 
     @Override
     public double getAverageForSubject(String subject) {
+        // return average mark using cache
         double sum = 0;
         int quantity = 0;
         for (Score score : scores.values()) {
@@ -60,17 +60,26 @@ public class Exam implements Examination{
 
     @Override
     public Set<String> lastFiveStudentsWithExcellentMarkOnAnySubject() {
-        Set<String> lastFiveStudents = new HashSet<>();
-
+        Set<String> lastFiveStudents = new LinkedHashSet<>(5);
+        int count = 0;
+        //add to linked hash set only five last added students with excellent mark, use for loop from the end of the scores set
+        // reverse set
+        List<Score> scoresList = new ArrayList<>(scores.values());
+        Collections.reverse(scoresList);
+        for (Score score : scoresList) {
+            if (score.score() == 5) {
+                lastFiveStudents.add(score.name());
+                count++;
+            }
+            if (count == 5) {
+                break;
+            }
+        }
         return lastFiveStudents;
     }
 
     @Override
     public Collection<Score> getAllScores() {
-        Collection<Score> scores = new ArrayList<>();
-        for (Score score : this.scores.values()) {
-            scores.add(score);
-        }
-        return scores;
+        return new ArrayList<>(this.scores.values());
     }
 }

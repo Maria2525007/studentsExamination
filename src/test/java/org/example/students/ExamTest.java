@@ -4,13 +4,13 @@ import org.example.students.exceptions.ItemNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExamTest {
-    private Examination exam = new Exam();
+    private final Examination exam = new Exam();
 
     @Test
     void addAndGetScore() throws ItemNotFoundException {
@@ -22,9 +22,10 @@ class ExamTest {
 
     @Test
     void getScore() throws ItemNotFoundException {
-        exam.getScore("Mary Bee", "Biology");
+        exam.getScore("John Doe", "Math");
+       //expected exception 'no such student name'
         Assertions.assertThrows(ItemNotFoundException.class, () -> {
-            exam.getScore("Mary Bee", "Biology");
+            exam.getScore("John Doe", "Math");
         });
     }
 
@@ -45,7 +46,7 @@ class ExamTest {
         exam.addScore(new Score("Genry March", "Math", 5));
         exam.addScore(new Score("Frank Konnel", "Philosophy", 5));
         exam.addScore(new Score("Mary Rosher", "Math", 3));
-        Set<String> result = new HashSet<>();
+        Set<String> result = new LinkedHashSet<>();
         for (Score score : exam.getAllScores()) {
             result.add(score.name());
         }
@@ -55,25 +56,29 @@ class ExamTest {
 
     @Test
     void lastFiveStudentsWithExcellentMarkOnAnySubject() {
-        exam.addScore(new Score("Genry March", "Math", 2));
+        exam.addScore(new Score("Genry March", "Math", 5));
         exam.addScore(new Score("Frank Konnel", "Philosophy", 5));
         exam.addScore(new Score("Mary Rosher", "Math", 5));
         exam.addScore(new Score("Daniel Creak", "Geography", 5));
         exam.addScore(new Score("Vera Lorean", "PE", 5));
-        exam.addScore(new Score("Genry March", "Math", 5));
+        exam.addScore(new Score("Genry March", "Math", 2));
         exam.addScore(new Score("Nino Rasputin", "IT", 5));
         exam.addScore(new Score("Piter Smith", "Math", 3));
-        Set<String> result = new HashSet<>();
-        result.add("Genry March");
-        result.add("Mary Rosher");
-        result.add("Daniel Creak");
-        result.add("Vera Lorean");
+        Set<String> result = new LinkedHashSet<>();
         result.add("Nino Rasputin");
+        result.add("Vera Lorean");
+        result.add("Daniel Creak");
+        result.add("Mary Rosher");
+        result.add("Frank Konnel");
 
         Assertions.assertEquals(result, exam.lastFiveStudentsWithExcellentMarkOnAnySubject());
     }
 
     @Test
     void getAllScores() {
+        exam.addScore(new Score("Genry March", "Math", 2));
+        exam.addScore(new Score("Frank Konnel", "Philosophy", 3));
+        exam.addScore(new Score("Mary Rosher", "Math", 5));
+        Assertions.assertEquals(3, exam.getAllScores().size());
     }
 }
